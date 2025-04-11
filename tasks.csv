@@ -1,0 +1,12 @@
+Task,1,Task 1,Description 1,NEW
+Task,2,Task 2,Description 2,NEW
+Epic,3,Epic 1,Description epic 1,IN_PROGRESS
+Epic,4,Epic 2,Description epic 2,NEW
+Subtask,5,Subtask 1,Description subtask 1,NEW
+Subtask,6,Subtask 2,Description subtask 2,DONE
+Subtask,7,Subtask 3,Description subtask 3,NEW
+Epic,3,Epic 1,Description epic 1,IN_PROGRESS
+Epic,4,Epic 2,Description epic 2,NEW
+Subtask,5,Subtask 1,Description subtask 1,NEW,3
+Subtask,6,Subtask 2,Description subtask 2,DONE,3
+Subtask,7,Subtask 3,Description subtask 3,NEW,4
