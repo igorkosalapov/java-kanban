@@ -1,3 +1,6 @@
+import manager.*;
+import model.*;
+
 public class Main {
     public static void main(String[] args) {
         TaskManager manager = new TaskManager();
@@ -12,10 +15,11 @@ public class Main {
             System.out.println(task);
         }
 
-        task2.setStatus(Status.DONE);
-        manager.updateTask(task2);
+        Task updatedTask = new Task(task2.getName(), task2.getDescription(), Status.DONE);
+        updatedTask.setId(task2.getId());
+        manager.updateTask(updatedTask);
         System.out.println("\n== После обновления второй задачи ==");
-        System.out.println(manager.getTaskById(task2.getId()));
+        System.out.println(manager.getTaskById(updatedTask.getId()));
 
         Epic epic1 = new Epic("Организовать праздник", "Большой семейный праздник");
         manager.createEpic(epic1);
@@ -33,21 +37,25 @@ public class Main {
             System.out.println(sub);
         }
 
-        subtask1.setStatus(Status.DONE);
-        manager.updateSubtask(subtask1);
+        Subtask updatedSubtask = new Subtask(subtask1.getName(), subtask1.getDescription(),
+                Status.DONE, subtask1.getEpicId());
+        updatedSubtask.setId(subtask1.getId());
+        manager.updateSubtask(updatedSubtask);
         System.out.println("\n== Эпик после обновления первой подзадачи ==");
         System.out.println(manager.getEpicById(epic1.getId()));
 
-        subtask2.setStatus(Status.DONE);
-        manager.updateSubtask(subtask2);
+        Subtask updatedSubtask2 = new Subtask(subtask2.getName(), subtask2.getDescription(), Status.DONE,
+                subtask2.getEpicId());
+        updatedSubtask2.setId(subtask2.getId());
+        manager.updateSubtask(updatedSubtask2);
         System.out.println("\n== Эпик после обновления всех подзадач ==");
         System.out.println(manager.getEpicById(epic1.getId()));
 
-        epic1.setName("Новый праздник");
-        epic1.setDescription("Описание изменено");
-        manager.updateEpic(epic1);
+        Epic updatedEpic = new Epic("Новый праздник", "Описание изменено");
+        updatedEpic.setId(epic1.getId());
+        manager.updateEpic(updatedEpic);
         System.out.println("\n== Эпик после обновления имени и описания ==");
-        System.out.println(manager.getEpicById(epic1.getId()));
+        System.out.println(manager.getEpicById(updatedEpic.getId()));
 
         Epic epic2 = new Epic("Купить квартиру", "Выбор и покупка жилья");
         manager.createEpic(epic2);
