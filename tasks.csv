@@ -1,12 +1,1 @@
-model.Task,1,model.Task 1,Description 1,NEW
-model.Task,2,model.Task 2,Description 2,NEW
-model.Epic,3,model.Epic 1,Description epic 1,IN_PROGRESS
-model.Epic,4,model.Epic 2,Description epic 2,NEW
-model.Subtask,5,model.Subtask 1,Description subtask 1,NEW
-model.Subtask,6,model.Subtask 2,Description subtask 2,DONE
-model.Subtask,7,model.Subtask 3,Description subtask 3,NEW
-model.Epic,3,model.Epic 1,Description epic 1,IN_PROGRESS
-model.Epic,4,model.Epic 2,Description epic 2,NEW
-model.Subtask,5,model.Subtask 1,Description subtask 1,NEW,3
-model.Subtask,6,model.Subtask 2,Description subtask 2,DONE,3
-model.Subtask,7,model.Subtask 3,Description subtask 3,NEW,4
+
