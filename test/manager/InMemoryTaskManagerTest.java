@@ -112,7 +112,6 @@ class InMemoryTaskManagerTest {
         Subtask subtask = new Subtask("Subtask", "Desc", Status.NEW, epic.getId());
         manager.createSubtask(subtask);
 
-        // Меняем статус напрямую через сеттер
         subtask.setStatus(Status.DONE);
 
         Epic storedEpic = manager.getEpicById(epic.getId());
@@ -127,7 +126,7 @@ class InMemoryTaskManagerTest {
         manager.createTask(task);
         int originalId = task.getId();
 
-        task.setId(999); // Меняем id напрямую
+        task.setId(999);
 
         Task retrieved = manager.getTaskById(originalId);
 
