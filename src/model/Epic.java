@@ -21,11 +21,14 @@ public class Epic extends Task {
 
         LocalDateTime earliestStart = null;
         LocalDateTime latestEnd = null;
+        Duration totalDuration = Duration.ZERO;
 
         for (Subtask subtask : subtasks) {
             if (subtask.getStartTime() != null && subtask.getDuration() != null) {
                 LocalDateTime subStart = subtask.getStartTime();
                 LocalDateTime subEnd = subtask.getEndTime();
+
+                totalDuration = totalDuration.plus(subtask.getDuration());
 
                 if (earliestStart == null || subStart.isBefore(earliestStart)) {
                     earliestStart = subStart;
@@ -37,12 +40,9 @@ public class Epic extends Task {
         }
 
         setStartTime(earliestStart);
-        if (earliestStart != null && latestEnd != null) {
-            setDuration(Duration.between(earliestStart, latestEnd));
-        } else {
-            setDuration(null);
-        }
+        setDuration(totalDuration.isZero() ? null : totalDuration);
     }
+
 
     public List<Integer> getSubtaskIds() {
         return subtaskIds;

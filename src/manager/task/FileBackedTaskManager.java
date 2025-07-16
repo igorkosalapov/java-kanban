@@ -28,6 +28,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
         int maxId = 0;
         int i = 1;
+
         for (; i < lines.size(); i++) {
             String line = lines.get(i);
             if (line.isBlank()) break;
@@ -40,7 +41,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 manager.epics.put(id, epic);
             } else if (task instanceof Subtask subtask) {
                 manager.subtasks.put(id, subtask);
-                manager.prioritizedTasks.add(task);
+                manager.prioritizedTasks.add(subtask);
             } else {
                 manager.tasks.put(id, task);
                 manager.prioritizedTasks.add(task);
@@ -48,6 +49,19 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
 
         manager.nextId = maxId + 1;
+
+        for (Subtask sub : manager.subtasks.values()) {
+            Epic epic = manager.epics.get(sub.getEpicId());
+            if (epic != null) {
+                epic.addSubtaskId(sub.getId());
+            }
+        }
+
+        for (Epic epic : manager.epics.values()) {
+            List<Subtask> subtasks = manager.getSubtasksByEpicId(epic.getId());
+            epic.updateTimeFields(subtasks);
+            manager.updateEpic(epic);
+        }
 
         if (i + 1 < lines.size()) {
             String historyLine = lines.get(i + 1);
@@ -61,19 +75,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     manager.historyManager.add(task);
                 }
             }
-        }
-
-        for (Subtask subtask : manager.subtasks.values()) {
-            Epic epic = manager.epics.get(subtask.getEpicId());
-            if (epic != null) {
-                epic.addSubtaskId(subtask.getId());
-            }
-        }
-
-        for (Epic epic : manager.epics.values()) {
-            List<Subtask> subtasksByEpic = manager.getSubtasksByEpicId(epic.getId());
-            epic.updateTimeFields(subtasksByEpic);
-            manager.updateEpic(epic);
         }
 
         return manager;
