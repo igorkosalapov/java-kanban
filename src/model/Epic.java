@@ -1,5 +1,7 @@
 package model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,8 +9,44 @@ public class Epic extends Task {
     private final List<Integer> subtaskIds = new ArrayList<>();
 
     public Epic(String name, String description) {
-        super(name, description, Status.NEW);
+        super(name, description, Status.NEW, null, Duration.ZERO);
     }
+
+        public void updateTimeFields(List<Subtask> subtasks) {
+            if (subtasks == null || subtasks.isEmpty()) {
+                setStartTime(null);
+                setDuration(null);
+                return;
+            }
+
+            Duration totalDuration = Duration.ZERO;
+            LocalDateTime earliestStart = null;
+            LocalDateTime latestEnd = null;
+
+            for (Subtask subtask : subtasks) {
+                if (subtask.getStartTime() != null && subtask.getDuration() != null) {
+                    LocalDateTime subStart = subtask.getStartTime();
+                    LocalDateTime subEnd = subtask.getEndTime();
+
+                    totalDuration = totalDuration.plus(subtask.getDuration());
+
+                    if (earliestStart == null || subStart.isBefore(earliestStart)) {
+                        earliestStart = subStart;
+                    }
+                    if (latestEnd == null || subEnd.isAfter(latestEnd)) {
+                        latestEnd = subEnd;
+                    }
+                }
+            }
+
+            setStartTime(earliestStart);
+            if (!totalDuration.isZero()) {
+                setDuration(totalDuration);
+            } else {
+                setDuration(null);
+            }
+        }
+
 
     public List<Integer> getSubtaskIds() {
         return subtaskIds;
@@ -28,6 +66,14 @@ public class Epic extends Task {
     @Override
     public TaskType getType() {
         return TaskType.EPIC;
+    }
+
+    @Override
+    public LocalDateTime getEndTime() {
+        if (getStartTime() != null && getDuration() != null) {
+            return getStartTime().plus(getDuration());
+        }
+        return null;
     }
 
     @Override

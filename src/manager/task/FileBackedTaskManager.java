@@ -1,6 +1,5 @@
 package manager.task;
 
-
 import model.*;
 
 import java.io.*;
@@ -11,6 +10,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File file;
 
     public FileBackedTaskManager(File file) {
+        super();
         this.file = file;
     }
 
@@ -33,7 +33,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             if (line.isBlank()) break;
 
             Task task = CSVFormatter.fromString(line);
-
             int id = task.getId();
             maxId = Math.max(maxId, id);
 
@@ -41,8 +40,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 manager.epics.put(id, epic);
             } else if (task instanceof Subtask subtask) {
                 manager.subtasks.put(id, subtask);
+                manager.prioritizedTasks.add(task);
             } else {
                 manager.tasks.put(id, task);
+                manager.prioritizedTasks.add(task);
             }
         }
 
@@ -67,6 +68,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             if (epic != null) {
                 epic.addSubtaskId(subtask.getId());
             }
+        }
+
+        for (Epic epic : manager.epics.values()) {
+            List<Subtask> subtasksByEpic = manager.getSubtasksByEpicId(epic.getId());
+            epic.updateTimeFields(subtasksByEpic);
+            manager.updateEpic(epic);
         }
 
         return manager;
@@ -184,7 +191,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
 
             writer.newLine();
-            writer.write(CSVFormatter.toString(historyManager));
+            writer.write(CSVFormatter.historyToString(historyManager));
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка сохранения файла", e);
         }
