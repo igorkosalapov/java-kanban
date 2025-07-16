@@ -91,7 +91,7 @@ class InMemoryHistoryManagerTest {
         history.add(task1);
         history.add(task2);
         history.add(task3);
-        history.add(task2); // добавляем второй раз
+        history.add(task2);
 
         List<Task> expected = List.of(task1, task3, task2);
         List<Task> actual = history.getHistory();
