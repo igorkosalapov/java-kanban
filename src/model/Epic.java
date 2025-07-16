@@ -12,41 +12,37 @@ public class Epic extends Task {
         super(name, description, Status.NEW, null, Duration.ZERO);
     }
 
-        public void updateTimeFields(List<Subtask> subtasks) {
-            if (subtasks == null || subtasks.isEmpty()) {
-                setStartTime(null);
-                setDuration(null);
-                return;
-            }
+    public void updateTimeFields(List<Subtask> subtasks) {
+        if (subtasks == null || subtasks.isEmpty()) {
+            setStartTime(null);
+            setDuration(null);
+            return;
+        }
 
-            Duration totalDuration = Duration.ZERO;
-            LocalDateTime earliestStart = null;
-            LocalDateTime latestEnd = null;
+        LocalDateTime earliestStart = null;
+        LocalDateTime latestEnd = null;
 
-            for (Subtask subtask : subtasks) {
-                if (subtask.getStartTime() != null && subtask.getDuration() != null) {
-                    LocalDateTime subStart = subtask.getStartTime();
-                    LocalDateTime subEnd = subtask.getEndTime();
+        for (Subtask subtask : subtasks) {
+            if (subtask.getStartTime() != null && subtask.getDuration() != null) {
+                LocalDateTime subStart = subtask.getStartTime();
+                LocalDateTime subEnd = subtask.getEndTime();
 
-                    totalDuration = totalDuration.plus(subtask.getDuration());
-
-                    if (earliestStart == null || subStart.isBefore(earliestStart)) {
-                        earliestStart = subStart;
-                    }
-                    if (latestEnd == null || subEnd.isAfter(latestEnd)) {
-                        latestEnd = subEnd;
-                    }
+                if (earliestStart == null || subStart.isBefore(earliestStart)) {
+                    earliestStart = subStart;
                 }
-            }
-
-            setStartTime(earliestStart);
-            if (!totalDuration.isZero()) {
-                setDuration(totalDuration);
-            } else {
-                setDuration(null);
+                if (latestEnd == null || subEnd.isAfter(latestEnd)) {
+                    latestEnd = subEnd;
+                }
             }
         }
 
+        setStartTime(earliestStart);
+        if (earliestStart != null && latestEnd != null) {
+            setDuration(Duration.between(earliestStart, latestEnd));
+        } else {
+            setDuration(null);
+        }
+    }
 
     public List<Integer> getSubtaskIds() {
         return subtaskIds;
