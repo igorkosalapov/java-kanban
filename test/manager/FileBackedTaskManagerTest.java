@@ -90,16 +90,29 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
         Subtask sub1 = new Subtask("Sub1", "First", Status.NEW, epic.getId(),
                 LocalDateTime.of(2023, 1, 1, 10, 0), Duration.ofMinutes(60));
         Subtask sub2 = new Subtask("Sub2", "Second", Status.NEW, epic.getId(),
-                LocalDateTime.of(2023, 1, 1, 12, 0), Duration.ofMinutes(90));
+                LocalDateTime.of(2023, 1, 1, 11, 30), Duration.ofMinutes(90));
+
+        System.out.println("Sub1 start: " + sub1.getStartTime());
+        System.out.println("Sub2 start: " + sub2.getStartTime());
+
         manager.createSubtask(sub1);
         manager.createSubtask(sub2);
 
         FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(tempFile);
         Epic loadedEpic = loaded.getEpicById(epic.getId());
 
-        assertEquals(LocalDateTime.of(2023, 1, 1, 10, 0), loadedEpic.getStartTime());
-        assertEquals(LocalDateTime.of(2023, 1, 1, 13, 30), loadedEpic.getEndTime());
-        assertEquals(Duration.ofMinutes(150), loadedEpic.getDuration());
+        System.out.println("Epic start: " + loadedEpic.getStartTime());
+
+        assertEquals(LocalDateTime.of(2023, 1, 1, 10, 0),
+                loadedEpic.getStartTime(),
+                "Начало эпика должно совпадать с началом самой ранней подзадачи");
+
+        assertEquals(LocalDateTime.of(2023, 1, 1, 13, 0),
+                loadedEpic.getEndTime(),
+                "Окончание эпика должно совпадать с окончанием самой поздней подзадачи");
+
+        assertEquals(Duration.ofMinutes(150), loadedEpic.getDuration(),
+                "Продолжительность эпика должна быть суммой продолжительностей подзадач");
     }
 
     @Test
@@ -107,7 +120,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     void shouldThrowWhenLoadingBrokenLine() throws IOException {
         try (FileWriter writer = new FileWriter(tempFile)) {
             writer.write("id,type,name,status,description,epic,startTime,duration\n");
-            writer.write("1,TASK,BrokenLine,NEW,desc\n"); // намеренно нарушен формат
+            writer.write("1,TASK,BrokenLine,NEW,desc\n");
         }
 
         Exception exception = assertThrows(IllegalArgumentException.class,

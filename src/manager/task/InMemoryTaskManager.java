@@ -68,7 +68,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (epic == null) {
             throw new IllegalArgumentException("Эпик для подзадачи не найден");
         }
-        subtask.setId(generateId()); // Установка ID до проверки времени
+        subtask.setId(generateId());
         if (hasTimeIntersection(subtask)) {
             throw new IllegalArgumentException("Пересечение задач по времени");
         }
@@ -137,7 +137,6 @@ public class InMemoryTaskManager implements TaskManager {
 
         stored.updateTimeFields(subtaskList);
 
-        epics.put(stored.getId(), stored);
     }
 
     @Override
