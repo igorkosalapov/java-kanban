@@ -147,6 +147,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         manager.deleteSubtaskById(s1.getId());
         assertFalse(manager.getHistory().stream().anyMatch(t -> t.getId() == s1.getId()));
     }
+
     @Test
     @DisplayName("Обновление обычной задачи")
     void shouldUpdateTask() {
@@ -191,6 +192,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         Subtask updated = manager.getSubtaskById(subtask.getId());
         assertEquals(Status.DONE, updated.getStatus());
     }
+
     @Test
     @DisplayName("Очистка всех задач")
     void shouldClearAllTasks() {
@@ -227,6 +229,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         assertTrue(manager.getAllSubtasks().isEmpty());
         assertFalse(manager.getAllEpics().isEmpty());
     }
+
     @Test
     @DisplayName("Получение подзадач по id эпика")
     void shouldReturnSubtasksByEpicId() {

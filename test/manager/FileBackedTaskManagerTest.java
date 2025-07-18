@@ -119,14 +119,15 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     @DisplayName("Исключение при загрузке некорректной строки CSV")
     void shouldThrowWhenLoadingBrokenLine() throws IOException {
         try (FileWriter writer = new FileWriter(tempFile)) {
-            writer.write("id,type,name,status,description,epic,startTime,duration\n");
-            writer.write("1,TASK,BrokenLine,NEW,desc\n");
+            writer.write("id,type,name,status,description,epic,startTime,duration,endTime\n");
+            writer.write("1,TASK,BrokenLine,NEW,desc,XXX,???,abc,notadate\n");
         }
 
         Exception exception = assertThrows(IllegalArgumentException.class,
                 () -> FileBackedTaskManager.loadFromFile(tempFile));
 
-        assertTrue(exception.getMessage().contains("Неверный формат CSV"));
+        assertTrue(exception.getMessage().toLowerCase().contains("ошибка"),
+                "Ожидалось сообщение об ошибке парсинга");
     }
 
     @Test

@@ -165,11 +165,11 @@ class InMemoryHistoryManagerTest {
         Task task = new Task("Задача", "Описание задачи", Status.NEW,
                 LocalDateTime.of(2025, 7, 16, 10, 0), Duration.ofMinutes(20));
         Epic epic = new Epic("Эпик", "Описание эпика");
-        Subtask subtask = new Subtask("Подзадача", "Описание подзадачи", Status.NEW, epic.getId(),
-                LocalDateTime.of(2025, 7, 16, 11, 0), Duration.ofMinutes(15));
 
         manager.createTask(task);
         manager.createEpic(epic);
+        Subtask subtask = new Subtask("Подзадача", "Описание подзадачи", Status.NEW, epic.getId(),
+                LocalDateTime.of(2025, 7, 16, 11, 0), Duration.ofMinutes(15));
         manager.createSubtask(subtask);
 
         history.add(task);

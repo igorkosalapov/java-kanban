@@ -7,72 +7,92 @@ import java.time.LocalDateTime;
 
 public class Main {
     public static void main(String[] args) {
-        File file = new File("resources/data.csv");
+        File file = new File("tasks.csv");
         FileBackedTaskManager manager = new FileBackedTaskManager(file);
 
-        Task task1 = new Task("Погладить кота", "Задача 1", Status.NEW,
+        Task task = new Task("Погладить кота", "Задача 1", Status.NEW,
                 LocalDateTime.of(2025, 7, 16, 10, 0), Duration.ofMinutes(30));
-        manager.createTask(task1);
+        manager.createTask(task);
 
-        Epic epic1 = new Epic("Подготовить проект", "Эпик 1");
-        manager.createEpic(epic1);
+        Epic epic = new Epic("Подготовить проект", "Эпик 1");
+        manager.createEpic(epic);
 
-        Subtask sub1 = new Subtask("Сделать слайды", "Подзадача 1", Status.NEW, epic1.getId(),
+        Subtask sub1 = new Subtask("Сделать слайды", "Подзадача 1", Status.NEW, epic.getId(),
                 LocalDateTime.of(2025, 7, 16, 11, 0), Duration.ofMinutes(60));
-        Subtask sub2 = new Subtask("Подготовить речь", "Подзадача 2", Status.DONE, epic1.getId(),
+        Subtask sub2 = new Subtask("Подготовить речь", "Подзадача 2", Status.DONE, epic.getId(),
                 LocalDateTime.of(2025, 7, 16, 12, 30), Duration.ofMinutes(30));
         manager.createSubtask(sub1);
         manager.createSubtask(sub2);
 
-        manager.getTaskById(task1.getId());
-        manager.getEpicById(epic1.getId());
+        manager.getTaskById(task.getId());
+        manager.getEpicById(epic.getId());
         manager.getSubtaskById(sub1.getId());
 
-        System.out.println("До загрузки из файла:");
-        System.out.println(manager.getAllTasks());
-        System.out.println(manager.getAllEpics());
-        System.out.println(manager.getAllSubtasks());
-        System.out.println("История:");
-        System.out.println(manager.getHistory());
+        System.out.println("До загрузки из файла:\n");
 
-        System.out.println("\nStartTime эпика: " + epic1.getStartTime());
-        System.out.println("EndTime эпика: " + epic1.getEndTime());
-        System.out.println("Duration эпика: " + epic1.getDuration());
+        System.out.println("Задачи:");
+        for (Task t : manager.getAllTasks()) {
+            System.out.println(t);
+        }
+
+        System.out.println("\nЭпики:");
+        for (Epic e : manager.getAllEpics()) {
+            System.out.println(e);
+        }
+
+        System.out.println("\nПодзадачи:");
+        for (Subtask s : manager.getAllSubtasks()) {
+            System.out.println(s);
+        }
+
+        System.out.println("\nИстория:");
+        for (Task h : manager.getHistory()) {
+            System.out.println(h);
+        }
+
+        System.out.println("\nStartTime эпика: " + epic.getStartTime());
+        System.out.println("EndTime эпика: " + epic.getEndTime());
+        System.out.println("Duration эпика: " + epic.getDuration());
 
         System.out.println("\nЗадачи по приоритету:");
-        for (Task task : manager.getPrioritizedTasks()) {
-            LocalDateTime endTime = task.getStartTime().plus(task.getDuration());
+        for (Task p : manager.getPrioritizedTasks()) {
             System.out.printf("ID=%d, Name='%s', StartTime=%s, Duration=%s, EndTime=%s%n",
-                    task.getId(), task.getName(), task.getStartTime(), task.getDuration(), endTime);
+                    p.getId(), p.getName(), p.getStartTime(), p.getDuration(), p.getEndTime());
         }
 
-        try {
-            Task conflict = new Task("Конфликтная задача", "Пересекается", Status.NEW,
-                    LocalDateTime.of(2025, 7, 16, 10, 15),
-                    Duration.ofMinutes(30));
-            manager.createTask(conflict);
-        } catch (IllegalArgumentException e) {
-            System.out.println("\nПоймано исключение при пересечении задач: " + e.getMessage());
-        }
-
+        System.out.println("\nПосле загрузки из файла:\n");
         FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(file);
 
-        System.out.println("\nПосле загрузки из файла:");
-        System.out.println(loaded.getAllTasks());
-        System.out.println(loaded.getAllEpics());
-        System.out.println(loaded.getAllSubtasks());
-        System.out.println("История:");
-        System.out.println(loaded.getHistory());
+        System.out.println("Задачи:");
+        for (Task t : loaded.getAllTasks()) {
+            System.out.println(t);
+        }
+
+        System.out.println("\nЭпики:");
+        for (Epic e : loaded.getAllEpics()) {
+            System.out.println(e);
+        }
+
+        System.out.println("\nПодзадачи:");
+        for (Subtask s : loaded.getAllSubtasks()) {
+            System.out.println(s);
+        }
+
+        System.out.println("\nИстория:");
+        for (Task h : loaded.getHistory()) {
+            System.out.println(h);
+        }
+
         System.out.println("\nPrioritized после загрузки:");
-        loaded.getPrioritizedTasks().forEach(task -> {
-            LocalDateTime endTime = task.getStartTime().plus(task.getDuration());
+        for (Task p : loaded.getPrioritizedTasks()) {
             System.out.printf("ID=%d, Name='%s', StartTime=%s, Duration=%s, EndTime=%s%n",
-                    task.getId(), task.getName(), task.getStartTime(), task.getDuration(), endTime);
-        });
+                    p.getId(), p.getName(), p.getStartTime(), p.getDuration(), p.getEndTime());
+        }
 
         Task newTask = new Task("Новая задача", "После загрузки", Status.NEW,
                 LocalDateTime.of(2025, 7, 16, 14, 0), Duration.ofMinutes(20));
         loaded.createTask(newTask);
+
         System.out.println("\nСоздана новая задача после загрузки: ID = " + newTask.getId());
     }
 }

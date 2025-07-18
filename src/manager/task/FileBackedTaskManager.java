@@ -190,8 +190,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 writer.write(CSVFormatter.toString(subtask));
                 writer.newLine();
             }
-
             writer.newLine();
+
             writer.write(CSVFormatter.historyToString(historyManager));
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка сохранения файла", e);

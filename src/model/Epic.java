@@ -18,6 +18,10 @@ public class Epic extends Task {
         return endTime;
     }
 
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
     public void updateTimeFields(List<Subtask> subtasks) {
         if (subtasks == null || subtasks.isEmpty()) {
             setStartTime(null);
