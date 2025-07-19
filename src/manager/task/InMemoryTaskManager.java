@@ -4,6 +4,8 @@ import manager.Managers;
 import manager.history.HistoryManager;
 import model.*;
 
+import java.time.Duration;
+
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -40,6 +42,41 @@ public class InMemoryTaskManager implements TaskManager {
                     LocalDateTime existingEnd = existing.getEndTime();
                     return !(newEnd.isBefore(existingStart) || newStart.isAfter(existingEnd));
                 });
+    }
+
+    private void updateEpicTimeFields(Epic epic) {
+        List<Subtask> subtasks = getSubtasksByEpicId(epic.getId());
+
+        if (subtasks == null || subtasks.isEmpty()) {
+            epic.setStartTime(null);
+            epic.setDuration(null);
+            epic.setEndTime(null);
+            return;
+        }
+
+        LocalDateTime earliestStart = null;
+        LocalDateTime latestEnd = null;
+        Duration totalDuration = Duration.ZERO;
+
+        for (Subtask subtask : subtasks) {
+            if (subtask.getStartTime() != null && subtask.getDuration() != null) {
+                LocalDateTime subStart = subtask.getStartTime();
+                LocalDateTime subEnd = subtask.getEndTime();
+
+                if (earliestStart == null || subStart.isBefore(earliestStart)) {
+                    earliestStart = subStart;
+                }
+                if (latestEnd == null || subEnd.isAfter(latestEnd)) {
+                    latestEnd = subEnd;
+                }
+
+                totalDuration = totalDuration.plus(subtask.getDuration());
+            }
+        }
+
+        epic.setStartTime(earliestStart);
+        epic.setDuration(totalDuration);
+        epic.setEndTime(latestEnd);
     }
 
     private int generateId() {
@@ -135,7 +172,7 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
 
-        stored.updateTimeFields(subtaskList);
+        updateEpicTimeFields(stored);
 
     }
 

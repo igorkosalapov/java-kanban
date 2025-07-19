@@ -22,41 +22,6 @@ public class Epic extends Task {
         this.endTime = endTime;
     }
 
-    public void updateTimeFields(List<Subtask> subtasks) {
-        if (subtasks == null || subtasks.isEmpty()) {
-            setStartTime(null);
-            setDuration(null);
-            endTime = null;
-            return;
-        }
-
-        LocalDateTime earliestStart = null;
-        LocalDateTime latestEnd = null;
-        Duration totalDuration = Duration.ZERO;
-
-        for (Subtask subtask : subtasks) {
-            if (subtask.getStartTime() != null && subtask.getDuration() != null) {
-
-                LocalDateTime subStart = subtask.getStartTime();
-                LocalDateTime subEnd = subtask.getEndTime();
-
-                if (earliestStart == null || subStart.isBefore(earliestStart)) {
-                    earliestStart = subStart;
-                }
-                if (latestEnd == null || subEnd.isAfter(latestEnd)) {
-                    latestEnd = subEnd;
-                }
-
-
-                totalDuration = totalDuration.plus(subtask.getDuration());
-            }
-        }
-
-        setStartTime(earliestStart);
-        setDuration(totalDuration);
-        this.endTime = latestEnd;
-    }
-
     public List<Integer> getSubtaskIds() {
         return subtaskIds;
     }

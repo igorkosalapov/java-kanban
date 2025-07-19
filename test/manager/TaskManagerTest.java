@@ -109,6 +109,90 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
+    @DisplayName("Задача до существующей — не должно быть пересечения")
+    void shouldAllowTaskBeforeExisting() {
+        Task task1 = new Task("Task1", "Desc", Status.NEW,
+                LocalDateTime.of(2025, 7, 16, 10, 0), Duration.ofMinutes(60));
+        Task task2 = new Task("Task2", "Desc", Status.NEW,
+                LocalDateTime.of(2025, 7, 16, 8, 0), Duration.ofMinutes(90)); // 8:00–9:30
+
+        manager.createTask(task1);
+        assertDoesNotThrow(() -> manager.createTask(task2));
+    }
+
+    @Test
+    @DisplayName("Задача после существующей — не должно быть пересечения")
+    void shouldAllowTaskAfterExisting() {
+        Task task1 = new Task("Task1", "Desc", Status.NEW,
+                LocalDateTime.of(2025, 7, 16, 10, 0), Duration.ofMinutes(60)); // 10:00–11:00
+        Task task2 = new Task("Task2", "Desc", Status.NEW,
+                LocalDateTime.of(2025, 7, 16, 11, 30), Duration.ofMinutes(30)); // 11:30–12:00
+
+        manager.createTask(task1);
+        assertDoesNotThrow(() -> manager.createTask(task2));
+    }
+
+    @Test
+    @DisplayName("Новая задача полностью внутри существующей — должно быть пересечение")
+    void shouldFailIfTaskIsInsideExisting() {
+        Task task1 = new Task("Task1", "Desc", Status.NEW,
+                LocalDateTime.of(2025, 7, 16, 10, 0), Duration.ofMinutes(90)); // 10:00–11:30
+        Task task2 = new Task("Inside", "Desc", Status.NEW,
+                LocalDateTime.of(2025, 7, 16, 10, 30), Duration.ofMinutes(30)); // 10:30–11:00
+
+        manager.createTask(task1);
+        assertThrows(IllegalArgumentException.class, () -> manager.createTask(task2));
+    }
+
+    @Test
+    @DisplayName("Новая задача частично пересекает начало существующей")
+    void shouldFailIfTaskOverlapsStart() {
+        Task task1 = new Task("Task1", "Desc", Status.NEW,
+                LocalDateTime.of(2025, 7, 16, 10, 0), Duration.ofMinutes(60)); // 10:00–11:00
+        Task task2 = new Task("OverlapStart", "Desc", Status.NEW,
+                LocalDateTime.of(2025, 7, 16, 9, 30), Duration.ofMinutes(45)); // 9:30–10:15
+
+        manager.createTask(task1);
+        assertThrows(IllegalArgumentException.class, () -> manager.createTask(task2));
+    }
+
+    @Test
+    @DisplayName("Новая задача частично пересекает конец существующей")
+    void shouldFailIfTaskOverlapsEnd() {
+        Task task1 = new Task("Task1", "Desc", Status.NEW,
+                LocalDateTime.of(2025, 7, 16, 10, 0), Duration.ofMinutes(60)); // 10:00–11:00
+        Task task2 = new Task("OverlapEnd", "Desc", Status.NEW,
+                LocalDateTime.of(2025, 7, 16, 10, 45), Duration.ofMinutes(30)); // 10:45–11:15
+
+        manager.createTask(task1);
+        assertThrows(IllegalArgumentException.class, () -> manager.createTask(task2));
+    }
+
+    @Test
+    @DisplayName("Новая задача полностью перекрывает существующую")
+    void shouldFailIfTaskWrapsExisting() {
+        Task task1 = new Task("Task1", "Desc", Status.NEW,
+                LocalDateTime.of(2025, 7, 16, 10, 0), Duration.ofMinutes(60)); // 10:00–11:00
+        Task task2 = new Task("Wrapper", "Desc", Status.NEW,
+                LocalDateTime.of(2025, 7, 16, 9, 0), Duration.ofMinutes(180)); // 9:00–12:00
+
+        manager.createTask(task1);
+        assertThrows(IllegalArgumentException.class, () -> manager.createTask(task2));
+    }
+
+    @Test
+    @DisplayName("Новая задача точно совпадает по времени")
+    void shouldFailIfExactTimeMatch() {
+        Task task1 = new Task("Task1", "Desc", Status.NEW,
+                LocalDateTime.of(2025, 7, 16, 10, 0), Duration.ofMinutes(60));
+        Task task2 = new Task("ExactMatch", "Desc", Status.NEW,
+                LocalDateTime.of(2025, 7, 16, 10, 0), Duration.ofMinutes(60));
+
+        manager.createTask(task1);
+        assertThrows(IllegalArgumentException.class, () -> manager.createTask(task2));
+    }
+
+    @Test
     @DisplayName("Пустая история возвращает пустой список")
     void emptyHistoryIsEmpty() {
         assertTrue(manager.getHistory().isEmpty());
