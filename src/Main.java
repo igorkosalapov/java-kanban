@@ -2,46 +2,97 @@ import manager.task.FileBackedTaskManager;
 import model.*;
 
 import java.io.File;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class Main {
     public static void main(String[] args) {
-        File file = new File("resources/data.csv");
-
-        // создаём менеджер с сохранением
+        File file = new File("tasks.csv");
         FileBackedTaskManager manager = new FileBackedTaskManager(file);
 
-        // создаём задачи
-        Task task1 = new Task("Погладить кота", "Задача 1", Status.NEW);
-        manager.createTask(task1);
+        Task task = new Task("Погладить кота", "Задача 1", Status.NEW,
+                LocalDateTime.of(2025, 7, 16, 10, 0), Duration.ofMinutes(30));
+        manager.createTask(task);
 
-        Epic epic1 = new Epic("Подготовить проект", "Эпик 1");
-        manager.createEpic(epic1);
+        Epic epic = new Epic("Подготовить проект", "Эпик 1");
+        manager.createEpic(epic);
 
-        Subtask sub1 = new Subtask("Сделать слайды", "Подзадача 1", Status.NEW, epic1.getId());
-        Subtask sub2 = new Subtask("Подготовить речь", "Подзадача 2", Status.DONE, epic1.getId());
+        Subtask sub1 = new Subtask("Сделать слайды", "Подзадача 1", Status.NEW, epic.getId(),
+                LocalDateTime.of(2025, 7, 16, 11, 0), Duration.ofMinutes(60));
+        Subtask sub2 = new Subtask("Подготовить речь", "Подзадача 2", Status.DONE, epic.getId(),
+                LocalDateTime.of(2025, 7, 16, 12, 30), Duration.ofMinutes(30));
         manager.createSubtask(sub1);
         manager.createSubtask(sub2);
 
-        // вызываем задачи, чтобы они попали в историю
-        manager.getTaskById(task1.getId());
-        manager.getEpicById(epic1.getId());
+        manager.getTaskById(task.getId());
+        manager.getEpicById(epic.getId());
         manager.getSubtaskById(sub1.getId());
 
-        System.out.println("До загрузки из файла:");
-        System.out.println(manager.getAllTasks());
-        System.out.println(manager.getAllEpics());
-        System.out.println(manager.getAllSubtasks());
-        System.out.println("История:");
-        System.out.println(manager.getHistory());
+        System.out.println("До загрузки из файла:\n");
 
-        // загружаем из файла в новый объект
+        System.out.println("Задачи:");
+        for (Task t : manager.getAllTasks()) {
+            System.out.println(t);
+        }
+
+        System.out.println("\nЭпики:");
+        for (Epic e : manager.getAllEpics()) {
+            System.out.println(e);
+        }
+
+        System.out.println("\nПодзадачи:");
+        for (Subtask s : manager.getAllSubtasks()) {
+            System.out.println(s);
+        }
+
+        System.out.println("\nИстория:");
+        for (Task h : manager.getHistory()) {
+            System.out.println(h);
+        }
+
+        System.out.println("\nStartTime эпика: " + epic.getStartTime());
+        System.out.println("EndTime эпика: " + epic.getEndTime());
+        System.out.println("Duration эпика: " + epic.getDuration());
+
+        System.out.println("\nЗадачи по приоритету:");
+        for (Task p : manager.getPrioritizedTasks()) {
+            System.out.printf("ID=%d, Name='%s', StartTime=%s, Duration=%s, EndTime=%s%n",
+                    p.getId(), p.getName(), p.getStartTime(), p.getDuration(), p.getEndTime());
+        }
+
+        System.out.println("\nПосле загрузки из файла:\n");
         FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(file);
 
-        System.out.println("\nПосле загрузки из файла:");
-        System.out.println(loaded.getAllTasks());
-        System.out.println(loaded.getAllEpics());
-        System.out.println(loaded.getAllSubtasks());
-        System.out.println("История:");
-        System.out.println(loaded.getHistory());
+        System.out.println("Задачи:");
+        for (Task t : loaded.getAllTasks()) {
+            System.out.println(t);
+        }
+
+        System.out.println("\nЭпики:");
+        for (Epic e : loaded.getAllEpics()) {
+            System.out.println(e);
+        }
+
+        System.out.println("\nПодзадачи:");
+        for (Subtask s : loaded.getAllSubtasks()) {
+            System.out.println(s);
+        }
+
+        System.out.println("\nИстория:");
+        for (Task h : loaded.getHistory()) {
+            System.out.println(h);
+        }
+
+        System.out.println("\nPrioritized после загрузки:");
+        for (Task p : loaded.getPrioritizedTasks()) {
+            System.out.printf("ID=%d, Name='%s', StartTime=%s, Duration=%s, EndTime=%s%n",
+                    p.getId(), p.getName(), p.getStartTime(), p.getDuration(), p.getEndTime());
+        }
+
+        Task newTask = new Task("Новая задача", "После загрузки", Status.NEW,
+                LocalDateTime.of(2025, 7, 16, 14, 0), Duration.ofMinutes(20));
+        loaded.createTask(newTask);
+
+        System.out.println("\nСоздана новая задача после загрузки: ID = " + newTask.getId());
     }
 }
