@@ -18,7 +18,6 @@ public class HttpTaskServer {
     private final TaskManager manager;
     private final Gson gson;
 
-    // Фабрика Gson с поддержкой LocalDateTime и Duration
     public static Gson getGson() {
         JsonSerializer<LocalDateTime> ldtSerializer =
                 (src, typeOfSrc, context) ->
@@ -43,7 +42,6 @@ public class HttpTaskServer {
         this(Managers.getDefault());
     }
 
-    // Конструктор для тестирования
     public HttpTaskServer(TaskManager manager) throws IOException {
         this.manager = manager;
         this.gson = getGson();

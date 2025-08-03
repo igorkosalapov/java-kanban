@@ -35,7 +35,6 @@ public class HttpTaskManagerPrioritizedTest {
         gson = HttpTaskServer.getGson();
         client = HttpClient.newHttpClient();
 
-        // Создаём эпик через HTTP
         Epic epic = new Epic("EpicPriority", "Эпик для приоритизации");
         String epicJson = gson.toJson(epic);
         HttpResponse<String> postEpic = client.send(
@@ -68,7 +67,6 @@ public class HttpTaskManagerPrioritizedTest {
     public void testPrioritizedOrderNoDuplicates() throws IOException, InterruptedException {
         LocalDateTime now = LocalDateTime.now();
 
-        // 1. Создаём задачу с ранним стартом (+5 мин)
         Task earlyTask = new Task("Early", "Ранняя задача", Status.NEW,
                 now.plusMinutes(5), Duration.ofMinutes(5));
         String earlyJson = gson.toJson(earlyTask);
@@ -81,7 +79,6 @@ public class HttpTaskManagerPrioritizedTest {
         assertEquals(201, postEarly.statusCode(), "POST /tasks для ранней задачи должен" +
                 " возвращать 201");
 
-        // 2. Создаём подзадачу со средним стартом (+10 мин)
         Subtask midSub = new Subtask("Mid", "Средняя подзадача", Status.NEW,
                 epicId, now.plusMinutes(11), Duration.ofMinutes(5));
         String midJson = gson.toJson(midSub);
@@ -93,7 +90,6 @@ public class HttpTaskManagerPrioritizedTest {
                 HttpResponse.BodyHandlers.ofString());
         assertEquals(201, postMid.statusCode(), "POST /subtasks должен возвращать 201");
 
-        // 3. Создаём задачу с поздним стартом (+15 мин)
         Task lateTask = new Task("Late", "Поздняя задача", Status.NEW,
                 now.plusMinutes(17), Duration.ofMinutes(5));
         String lateJson = gson.toJson(lateTask);
@@ -106,7 +102,6 @@ public class HttpTaskManagerPrioritizedTest {
         assertEquals(201, postLate.statusCode(), "POST /tasks для поздней задачи должен" +
                 " возвращать 201");
 
-        // 4. Запрашиваем приоритизацию
         HttpResponse<String> resp = client.send(
                 HttpRequest.newBuilder()
                         .uri(URI.create("http://localhost:8080/prioritized"))
@@ -117,7 +112,6 @@ public class HttpTaskManagerPrioritizedTest {
 
         Task[] ordered = gson.fromJson(resp.body(), Task[].class);
         assertEquals(3, ordered.length, "Должно быть три элемента в списке приоритизации");
-        // Проверяем порядок по startTime
         assertTrue(ordered[0].getStartTime().isBefore(ordered[1].getStartTime()), "Первый старт должен быть" +
                 " раньше второго");
         assertTrue(ordered[1].getStartTime().isBefore(ordered[2].getStartTime()), "Второй старт должен быть" +

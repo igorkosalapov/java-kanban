@@ -35,7 +35,6 @@ public class HttpTaskManagerSubtasksTest {
         gson = HttpTaskServer.getGson();
         client = HttpClient.newHttpClient();
 
-        // Создаём эпик для подзадач через HTTP
         Epic epic = new Epic("Epic1", "Описание эпика");
         String epicJson = gson.toJson(epic);
         HttpRequest postEpic = HttpRequest.newBuilder()
@@ -45,7 +44,6 @@ public class HttpTaskManagerSubtasksTest {
         HttpResponse<String> epicResp = client.send(postEpic, HttpResponse.BodyHandlers.ofString());
         assertEquals(201, epicResp.statusCode(), "POST /epics должен возвращать 201");
 
-        // Получаем ID созданного эпика
         HttpResponse<String> allEpics = client.send(
                 HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/epics")).GET().build(),
                 HttpResponse.BodyHandlers.ofString());
@@ -89,7 +87,6 @@ public class HttpTaskManagerSubtasksTest {
     @Test
     @DisplayName("GET /subtasks возвращает список с созданной подзадачей")
     public void testGetAllSubtasksAfterCreation() throws IOException, InterruptedException {
-        // Создаём подзадачу
         Subtask subtask = new Subtask("Sub2", "Описание", Status.NEW, epicId, LocalDateTime.now(),
                 Duration.ofMinutes(15));
         client.send(HttpRequest.newBuilder()
@@ -111,7 +108,6 @@ public class HttpTaskManagerSubtasksTest {
     @Test
     @DisplayName("GET /subtasks?id={id} возвращает подзадачу по её ID")
     public void testGetSubtaskByIdReturnsSubtask() throws IOException, InterruptedException {
-        // Создаём подзадачу
         Subtask subtask = new Subtask("Sub3", "Desc", Status.NEW, epicId, LocalDateTime.now(),
                 Duration.ofMinutes(10));
         client.send(HttpRequest.newBuilder()
@@ -119,7 +115,6 @@ public class HttpTaskManagerSubtasksTest {
                 .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(subtask)))
                 .build(), HttpResponse.BodyHandlers.ofString());
 
-        // Получаем ID
         HttpResponse<String> allResp = client.send(
                 HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/subtasks")).GET().build(),
                 HttpResponse.BodyHandlers.ofString());
@@ -163,7 +158,6 @@ public class HttpTaskManagerSubtasksTest {
     @Test
     @DisplayName("DELETE /subtasks удаляет все подзадачи и возвращает 201 Created")
     public void testDeleteAllSubtasks() throws IOException, InterruptedException {
-        // Создаём подзадачу
         Subtask subtask = new Subtask("Sub4", "Desc", Status.NEW, epicId, LocalDateTime.now(),
                 Duration.ofMinutes(12));
         client.send(HttpRequest.newBuilder()

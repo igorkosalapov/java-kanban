@@ -37,7 +37,6 @@ public class HttpTaskManagerHistoryTest {
         gson = HttpTaskServer.getGson();
         client = HttpClient.newHttpClient();
 
-        // Создать Task
         Task task = new Task("TaskH", "DescH", Status.NEW,
                 LocalDateTime.now(), Duration.ofMinutes(10));
         String taskJson = gson.toJson(task);
@@ -51,7 +50,6 @@ public class HttpTaskManagerHistoryTest {
                         HttpResponse.BodyHandlers.ofString()).body(), Task[].class)[0];
         taskId = createdTask.getId();
 
-        // Создать Epic
         Epic epic = new Epic("EpicH", "DescEpicH");
         String epicJson = gson.toJson(epic);
         HttpResponse<String> respEpic = client.send(
@@ -64,7 +62,6 @@ public class HttpTaskManagerHistoryTest {
                         HttpResponse.BodyHandlers.ofString()).body(), Epic[].class)[0];
         epicId = createdEpic.getId();
 
-        // Создать Subtask
         Subtask sub = new Subtask("SubH", "DescSubH", Status.NEW, epicId,
                 LocalDateTime.now().plusMinutes(15), Duration.ofMinutes(5));
         String subJson = gson.toJson(sub);
@@ -98,13 +95,10 @@ public class HttpTaskManagerHistoryTest {
     @Test
     @DisplayName("GET /history возвращает историю просмотров в порядке вызовов")
     public void testGetHistoryOrder() throws IOException, InterruptedException {
-        // Просмотреть Task
         client.send(HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/tasks?id=" + taskId)).GET().build(),
                 HttpResponse.BodyHandlers.ofString());
-        // Просмотреть Epic
         client.send(HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/epics?id=" + epicId)).GET().build(),
                 HttpResponse.BodyHandlers.ofString());
-        // Просмотреть Subtask
         client.send(HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/subtasks?id=" +
                 subtaskId)).GET().build(), HttpResponse.BodyHandlers.ofString());
 

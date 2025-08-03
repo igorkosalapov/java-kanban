@@ -72,7 +72,6 @@ public class EpicsHandler extends BaseHttpHandler {
             if (epic.getId() <= 0) {
                 manager.createEpic(epic);
             } else {
-                // проверяем существование, чтобы вернуть 404, если нет
                 manager.getEpicById(epic.getId());
                 manager.updateEpic(epic);
             }
@@ -91,7 +90,6 @@ public class EpicsHandler extends BaseHttpHandler {
         } else {
             int id = parseId(query);
             try {
-                // проверка существования
                 manager.getEpicById(id);
                 manager.deleteEpicById(id);
                 sendCreated(exchange);

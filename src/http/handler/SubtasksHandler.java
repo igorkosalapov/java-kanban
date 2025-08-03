@@ -72,7 +72,6 @@ public class SubtasksHandler extends BaseHttpHandler {
             if (subtask.getId() <= 0) {
                 manager.createSubtask(subtask);
             } else {
-                // проверим существование перед обновлением
                 manager.getSubtaskById(subtask.getId());
                 manager.updateSubtask(subtask);
             }
@@ -86,13 +85,11 @@ public class SubtasksHandler extends BaseHttpHandler {
 
     private void handleDelete(HttpExchange exchange, String query) throws IOException {
         if (query == null) {
-            // удаляем все подзадачи
             manager.clearSubtasks();
             sendCreated(exchange);
         } else {
             int id = parseId(query);
             try {
-                // проверить существование и вернуть 404, если нет
                 manager.getSubtaskById(id);
                 manager.deleteSubtaskById(id);
                 sendCreated(exchange);

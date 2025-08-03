@@ -72,7 +72,6 @@ public class TasksHandler extends BaseHttpHandler {
             if (task.getId() <= 0) {
                 manager.createTask(task);
             } else {
-                // проверяем существование, чтобы вернуть 404, если нет
                 manager.getTaskById(task.getId());
                 manager.updateTask(task);
             }
@@ -91,7 +90,6 @@ public class TasksHandler extends BaseHttpHandler {
         } else {
             int id = parseId(query);
             try {
-                // проверка существования
                 manager.getTaskById(id);
                 manager.deleteTaskById(id);
                 sendCreated(exchange);

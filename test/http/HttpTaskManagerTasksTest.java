@@ -32,7 +32,7 @@ public class HttpTaskManagerTasksTest {
         manager.clearSubtasks();
         taskServer = new HttpTaskServer(manager);
         taskServer.start();
-        gson = HttpTaskServer.getGson();  // <-- здесь используем нашу фабрику
+        gson = HttpTaskServer.getGson();
         client = HttpClient.newHttpClient();
     }
 
@@ -72,7 +72,6 @@ public class HttpTaskManagerTasksTest {
     @Test
     @DisplayName("GET /tasks возвращает список с созданной задачей")
     public void testGetAllTasksAfterCreation() throws IOException, InterruptedException {
-        // Настройка: создаём задачу
         Task task = new Task("Sample", "Desc", Status.NEW,
                 LocalDateTime.now(), Duration.ofMinutes(5));
         client.send(HttpRequest.newBuilder()
@@ -94,7 +93,6 @@ public class HttpTaskManagerTasksTest {
     @Test
     @DisplayName("GET /tasks?id={id} возвращает задачу по её ID")
     public void testGetTaskByIdReturnsTask() throws IOException, InterruptedException {
-        // Настройка: создаём задачу
         Task task = new Task("Lookup", "Desc", Status.NEW,
                 LocalDateTime.now(), Duration.ofMinutes(7));
         client.send(HttpRequest.newBuilder()
@@ -102,7 +100,6 @@ public class HttpTaskManagerTasksTest {
                 .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(task)))
                 .build(), HttpResponse.BodyHandlers.ofString());
 
-        // Получаем ID созданной задачи
         HttpResponse<String> allResp = client.send(
                 HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/tasks")).GET().build(),
                 HttpResponse.BodyHandlers.ofString());
@@ -146,7 +143,6 @@ public class HttpTaskManagerTasksTest {
     @Test
     @DisplayName("DELETE /tasks удаляет все задачи и возвращает 201 Created")
     public void testDeleteAllTasks() throws IOException, InterruptedException {
-        // Настройка: создаём задачу
         Task task = new Task("Temp", "Desc", Status.NEW,
                 LocalDateTime.now(), Duration.ofMinutes(10));
         client.send(HttpRequest.newBuilder()
