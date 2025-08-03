@@ -72,6 +72,8 @@ public class TasksHandler extends BaseHttpHandler {
             if (task.getId() <= 0) {
                 manager.createTask(task);
             } else {
+                // проверяем существование, чтобы вернуть 404, если нет
+                manager.getTaskById(task.getId());
                 manager.updateTask(task);
             }
             sendCreated(exchange);
@@ -83,16 +85,19 @@ public class TasksHandler extends BaseHttpHandler {
     }
 
     private void handleDelete(HttpExchange exchange, String query) throws IOException {
-        try {
-            if (query == null) {
-                manager.clearTasks();
-            } else {
-                int id = parseId(query);
-                manager.deleteTaskById(id);
-            }
+        if (query == null) {
+            manager.clearTasks();
             sendCreated(exchange);
-        } catch (NotFoundException e) {
-            sendNotFound(exchange);
+        } else {
+            int id = parseId(query);
+            try {
+                // проверка существования
+                manager.getTaskById(id);
+                manager.deleteTaskById(id);
+                sendCreated(exchange);
+            } catch (NotFoundException e) {
+                sendNotFound(exchange);
+            }
         }
     }
 

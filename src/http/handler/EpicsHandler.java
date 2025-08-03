@@ -72,6 +72,8 @@ public class EpicsHandler extends BaseHttpHandler {
             if (epic.getId() <= 0) {
                 manager.createEpic(epic);
             } else {
+                // проверяем существование, чтобы вернуть 404, если нет
+                manager.getEpicById(epic.getId());
                 manager.updateEpic(epic);
             }
             sendCreated(exchange);
@@ -83,16 +85,19 @@ public class EpicsHandler extends BaseHttpHandler {
     }
 
     private void handleDelete(HttpExchange exchange, String query) throws IOException {
-        try {
-            if (query == null) {
-                manager.clearEpics();
-            } else {
-                int id = parseId(query);
-                manager.deleteEpicById(id);
-            }
+        if (query == null) {
+            manager.clearEpics();
             sendCreated(exchange);
-        } catch (NotFoundException e) {
-            sendNotFound(exchange);
+        } else {
+            int id = parseId(query);
+            try {
+                // проверка существования
+                manager.getEpicById(id);
+                manager.deleteEpicById(id);
+                sendCreated(exchange);
+            } catch (NotFoundException e) {
+                sendNotFound(exchange);
+            }
         }
     }
 

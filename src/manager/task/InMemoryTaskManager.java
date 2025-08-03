@@ -161,42 +161,39 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteTaskById(int id) {
         Task removed = tasks.remove(id);
-        if (removed == null) {
-            throw new NotFoundException("Задача с id " + id + " не найдена");
+        if (removed != null) {
+            prioritizedTasks.remove(removed);
+            historyManager.remove(id);
         }
-        prioritizedTasks.remove(removed);
-        historyManager.remove(id);
     }
 
     @Override
     public void deleteEpicById(int id) {
         Epic removed = epics.remove(id);
-        if (removed == null) {
-            throw new NotFoundException("Эпик с id " + id + " не найден");
-        }
-        for (int sid : removed.getSubtaskIds()) {
-            Subtask st = subtasks.remove(sid);
-            if (st != null) {
-                prioritizedTasks.remove(st);
-                historyManager.remove(sid);
+        if (removed != null) {
+            for (int sid : removed.getSubtaskIds()) {
+                Subtask st = subtasks.remove(sid);
+                if (st != null) {
+                    prioritizedTasks.remove(st);
+                    historyManager.remove(sid);
+                }
             }
+            historyManager.remove(id);
         }
-        historyManager.remove(id);
     }
 
     @Override
     public void deleteSubtaskById(int id) {
         Subtask removed = subtasks.remove(id);
-        if (removed == null) {
-            throw new NotFoundException("Подзадача с id " + id + " не найдена");
+        if (removed != null) {
+            prioritizedTasks.remove(removed);
+            Epic epic = epics.get(removed.getEpicId());
+            if (epic != null) {
+                epic.removeSubtaskId(id);
+                updateEpic(epic);
+            }
+            historyManager.remove(id);
         }
-        prioritizedTasks.remove(removed);
-        Epic epic = epics.get(removed.getEpicId());
-        if (epic != null) {
-            epic.removeSubtaskId(id);
-            updateEpic(epic);
-        }
-        historyManager.remove(id);
     }
 
     @Override
