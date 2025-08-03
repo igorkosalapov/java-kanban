@@ -220,7 +220,10 @@ public class InMemoryTaskManager implements TaskManager {
         subtasks.keySet().forEach(historyManager::remove);
         prioritizedTasks.removeIf(t -> t instanceof Subtask);
         subtasks.clear();
-        epics.values().forEach(ep -> { ep.getSubtaskIds().clear(); updateEpic(ep); });
+        epics.values().forEach(ep -> {
+            ep.getSubtaskIds().clear();
+            updateEpic(ep);
+        });
     }
 
     @Override
