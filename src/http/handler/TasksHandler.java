@@ -7,12 +7,8 @@ import model.Task;
 import manager.task.exception.NotFoundException;
 import manager.task.exception.IntersectionException;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TasksHandler extends BaseHttpHandler {
     private final TaskManager manager;
@@ -63,9 +59,7 @@ public class TasksHandler extends BaseHttpHandler {
     }
 
     private void handlePost(HttpExchange exchange) throws IOException {
-        String body = new BufferedReader(new InputStreamReader(
-                exchange.getRequestBody(), StandardCharsets.UTF_8))
-                .lines().collect(Collectors.joining());
+        String body = readRequestBody(exchange);
         Task task = gson.fromJson(body, Task.class);
 
         try {
@@ -97,9 +91,5 @@ public class TasksHandler extends BaseHttpHandler {
                 sendNotFound(exchange);
             }
         }
-    }
-
-    private int parseId(String query) {
-        return Integer.parseInt(query.split("=")[1]);
     }
 }

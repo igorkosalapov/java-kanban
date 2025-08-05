@@ -2,6 +2,8 @@ package http;
 
 import com.google.gson.*;
 import com.sun.net.httpserver.HttpServer;
+import http.adapter.DurationAdapter;
+import http.adapter.LocalDateTimeAdapter;
 import manager.task.TaskManager;
 import manager.Managers;
 import http.handler.*;
@@ -16,26 +18,17 @@ public class HttpTaskServer {
 
     private final HttpServer server;
     private final TaskManager manager;
-    private final Gson gson;
+    private static Gson gson;
 
-    public static Gson getGson() {
-        JsonSerializer<LocalDateTime> ldtSerializer =
-                (src, typeOfSrc, context) ->
-                        new JsonPrimitive(src.toString());
-        JsonDeserializer<LocalDateTime> ldtDeserializer =
-                (json, type, context) ->
-                        LocalDateTime.parse(json.getAsString());
-        JsonSerializer<Duration> durSerializer =
-                (src, typeOfSrc, context) -> new JsonPrimitive(src.toString());
-        JsonDeserializer<Duration> durDeserializer =
-                (json, type, context) -> Duration.parse(json.getAsString());
-
-        return new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, ldtSerializer)
-                .registerTypeAdapter(LocalDateTime.class, ldtDeserializer)
-                .registerTypeAdapter(Duration.class, durSerializer)
-                .registerTypeAdapter(Duration.class, durDeserializer)
+    public static synchronized Gson getGson() {
+        if (gson != null) {
+            return gson;
+        }
+        gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                .registerTypeAdapter(Duration.class, new DurationAdapter())
                 .create();
+        return gson;
     }
 
     public HttpTaskServer() throws IOException {
@@ -44,7 +37,7 @@ public class HttpTaskServer {
 
     public HttpTaskServer(TaskManager manager) throws IOException {
         this.manager = manager;
-        this.gson = getGson();
+        gson = getGson();
         this.server = HttpServer.create(new InetSocketAddress(PORT), 0);
         createContexts();
     }
