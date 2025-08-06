@@ -10,7 +10,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library" scope="TEST">
+    <orderEntry type="module-library" exported="" scope="TEST">
       <library name="JUnit5.8.1">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/lib/junit-jupiter-5.8.1.jar!/" />
@@ -27,5 +27,14 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="junit.jupiter" level="project" />
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Desktop/gson-2.10.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
